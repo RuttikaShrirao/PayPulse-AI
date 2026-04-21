@@ -43,7 +43,7 @@ const login = (req, res) => {
     const token = jwt.sign(
       { id: user.id, email: user.email }, 
       process.env.JWT_SECRET, 
-      { expiresIn: '1h' }
+      { expiresIn: '7d' }
     );
     res.json({ 
       message: "Login successful!", 
