@@ -2,6 +2,7 @@ const db = require('../config/db');
 const razorpay = require('../services/razorpay');
 const crypto = require('crypto');
 const { analyzePaymentFailure } = require('../services/gemini');
+const { recoveryQueue } = require('../services/queueService');
 
 const createOrder = async (req, res) => {
   const { amount } = req.body;
@@ -73,13 +74,25 @@ const reportFailure = async (req, res) => {
 
     db.query(sql, [
       error_reason, 
-      aiResult.customer_message, // We store the friendly message
+      aiResult.customer_message, 
       retryDate, 
       razorpay_order_id
-    ], (err, result) => {
+    ], async (err, result) => {
       if (err) return res.status(500).json({ error: "Database update failed" });
+
+      // 👨‍🏫 BULLMQ MAGIC:
+      // We schedule a job to retry in the future.
+      // (For this test, we use 10 seconds so you can see it work instantly!)
+      const delayInMs = 10000; 
+
+      await recoveryQueue.add('retry-payment', {
+        order_id: razorpay_order_id,
+        user_email: req.user.email,
+        amount: 500 // In a real app, get this from DB
+      }, { delay: delayInMs });
+
       res.json({ 
-        message: "Failure recorded and analyzed by AI", 
+        message: "Failure analyzed and retry scheduled!", 
         suggestion: aiResult 
       });
     });

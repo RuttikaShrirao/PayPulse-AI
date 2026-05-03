@@ -6,6 +6,7 @@ const morgan = require('morgan');
 // Import our new Routes
 const authRoutes = require('./routes/authRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+require('./workers/recoveryWorker'); // 👨‍🏫 Start the background worker
 
 const app = express();
 const port = process.env.PORT || 3001;
