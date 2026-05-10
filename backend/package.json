@@ -20,6 +20,7 @@
     "ioredis": "^5.10.1",
     "morgan": "^1.10.1",
     "mysql2": "^3.20.0",
+    "nodemailer": "^8.0.7",
     "razorpay": "^2.9.6"
   }
 }

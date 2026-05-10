@@ -14,7 +14,9 @@ const createOrder = async (req, res) => {
 
   try {
     const order = await razorpay.orders.create(options);
+    console.log("Razorpay Order Created----->", order);
     const sql = "INSERT INTO payments (user_id, amount, razorpay_order_id, status) VALUES (?, ?, ?, 'pending')";
+    console.log("SQL Query----->", sql)
     db.query(sql, [req.user.id, amount, order.id], (err, result) => {
       if (err) return res.status(500).json({ error: "Database error saving order" });
       res.json({
@@ -60,8 +62,8 @@ const reportFailure = async (req, res) => {
 
     // 2. Calculate retry date (Current date + suggested days)
     const retryDate = new Date();
-    retryDate.setDate(retryDate.getDate() + (aiResult.days_to_wait || 1));
-
+    retryDate.setDate(retryDate.getDate() + (aiResult.days_to_wait || 0));
+    console.log("Retry Date----->",retryDate,"-----", aiResult.days_to_wait);
     // 3. Update the database with failure info and AI advice
     const sql = `
       UPDATE payments 
