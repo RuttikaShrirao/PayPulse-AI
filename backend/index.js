@@ -9,10 +9,14 @@ const paymentRoutes = require('./routes/paymentRoutes');
 require('./workers/recoveryWorker'); // 👨‍🏫 Start the background worker
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: '*', // For development, we allow all origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(morgan('dev'));
 

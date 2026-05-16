@@ -64,6 +64,7 @@ const reportFailure = async (req, res) => {
     const retryDate = new Date();
     retryDate.setDate(retryDate.getDate() + (aiResult.days_to_wait || 0));
     console.log("Retry Date----->",retryDate,"-----", aiResult.days_to_wait);
+    
     // 3. Update the database with failure info and AI advice
     const sql = `
       UPDATE payments 
@@ -84,13 +85,12 @@ const reportFailure = async (req, res) => {
 
       // 👨‍🏫 BULLMQ MAGIC:
       // We schedule a job to retry in the future.
-      // (For this test, we use 10 seconds so you can see it work instantly!)
       const delayInMs = 10000; 
 
       await recoveryQueue.add('retry-payment', {
         order_id: razorpay_order_id,
         user_email: req.user.email,
-        amount: 500 // In a real app, get this from DB
+        amount: 500
       }, { delay: delayInMs });
 
       res.json({ 
@@ -104,4 +104,19 @@ const reportFailure = async (req, res) => {
   }
 };
 
-module.exports = { createOrder, verifyPayment, reportFailure };
+// 📊 Get all payments for Admin Dashboard
+const getAllPayments = (req, res) => {
+  const sql = `
+    SELECT p.*, u.email as user_email, u.name as user_name 
+    FROM payments p 
+    JOIN users u ON p.user_id = u.id 
+    ORDER BY p.created_at DESC
+  `;
+  
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).json({ error: "Database error" });
+    res.json(results);
+  });
+};
+
+module.exports = { createOrder, verifyPayment, reportFailure, getAllPayments };

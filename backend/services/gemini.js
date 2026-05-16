@@ -15,6 +15,10 @@ const analyzePaymentFailure = async (errorReason) => {
     2. Suggest how many days we should wait before trying to charge them again (as an integer, e.g., 3).
     3. Write a friendly, empathy-first email message to the customer asking them to update their details or check their balance.
     
+    CRITICAL INSTRUCTIONS FOR THE MESSAGE:
+    - Do NOT include a Subject line.
+    - Do NOT include a greeting like "Hi [Name]" or a sign-off like "Best, Team". Just write the body of the paragraph. Our email template handles the rest.
+    
     IMPORTANT: Return your entire response ONLY as a JSON object with these keys: 
     "reason_summary", "days_to_wait", "customer_message".
   `;
